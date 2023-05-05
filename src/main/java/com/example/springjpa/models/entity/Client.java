@@ -1,8 +1,10 @@
 package com.example.springjpa.models.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -22,10 +24,12 @@ public class Client implements Serializable {
     private Long id;
     @Column(name = "name")
     @NotEmpty
+    @Size(min = 3, max = 20)
     private String name;
     @Column(name = "surname")
     @NotEmpty
     private String surname;
+    @Email
     @Column(name = "email")
     @NotEmpty
     private String email;

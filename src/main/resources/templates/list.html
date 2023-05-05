@@ -17,7 +17,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    <a class="nav-link active" aria-current="page" th:href="@{/list}">Client</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
@@ -46,7 +46,7 @@
 </nav>
 <div class="container">
     <h1 class="text-primary" th:text="${title}"></h1>
-
+    <p><a class="btn btn-success btn-xs" th:href="@{/form}">Create client</a></p>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -55,6 +55,8 @@
             <th>surname</th>
             <th>email</th>
             <th>date</th>
+            <th>edit</th>
+            <th>Delete</th>
         </tr>
         </thead>
         <tbody>
@@ -64,6 +66,9 @@
             <td th:text="${client.surname}"></td>
             <td th:text="${client.email}"></td>
             <td th:text="${client.createAt}"></td>
+            <td><a class="btn btn-primary btn-xs" th:href="@{/form/}+${client.id}" th:text="'Editar'"></a></td>
+            <td><a class="btn btn-danger btn-xs" th:href="@{/delete/}+${client.id}" th:text="'Delete'"
+                   onclick="return confirm('Are you sure to delete this client?')"></a></td>
         </tr>
 
         </tbody>
