@@ -2,17 +2,19 @@ package com.example.springjpa.controllers;
 
 import com.example.springjpa.models.dao.IClientDao;
 import com.example.springjpa.models.entity.Client;
+import com.example.springjpa.pages.PageRender;
 import com.example.springjpa.services.IClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
@@ -23,9 +25,13 @@ public class ClientController {
     private IClientService iClientService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public String listClients(Model model) {
+    public String listClients(Model model, @RequestParam(name = "page", defaultValue = "0") int page) {
+        Pageable pageable = PageRequest.of(page, 4);
+        Page<Client> clients = iClientService.findAll(pageable);
+        PageRender<Client> pageRender = new PageRender<>("/list", clients);
         model.addAttribute("title", "list of clients");
-        model.addAttribute("clients", iClientService.findAll());
+        model.addAttribute("clients", clients);
+        model.addAttribute("clients", clients);
         return "list";
     }
 
@@ -38,22 +44,28 @@ public class ClientController {
     }
 
     @RequestMapping(value = "/form", method = RequestMethod.POST)
-    public String saveClient(@Valid Client client, BindingResult result, Model model, SessionStatus status) {
+    public String saveClient(@Valid Client client, BindingResult result, Model model, SessionStatus status, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("title", "Client Form");
             return "form";
         }
         iClientService.save(client);
         status.setComplete();
+        redirectAttributes.addFlashAttribute("success", "Client created successfully");
         return "redirect:/list";
     }
 
     @RequestMapping(value = "/form/{id}", method = RequestMethod.GET)
-    public String edit(@PathVariable(value = "id") Long id, Map<String, Object> model) {
+    public String edit(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes redirectAttributes) {
         Client client = null;
         if (id > 0) {
             client = iClientService.findOne(id);
+            if (client == null) {
+                redirectAttributes.addFlashAttribute("error", "Client ID doesn't exists");
+                return "redirect:/list";
+            }
         } else {
+            redirectAttributes.addFlashAttribute("error", "Client ID cannot be 0");
             return "redirect:/list";
         }
         model.put("client", client);
