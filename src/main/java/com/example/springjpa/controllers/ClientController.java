@@ -14,8 +14,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @Controller
@@ -44,10 +49,23 @@ public class ClientController {
     }
 
     @RequestMapping(value = "/form", method = RequestMethod.POST)
-    public String saveClient(@Valid Client client, BindingResult result, Model model, SessionStatus status, RedirectAttributes redirectAttributes) {
+    public String saveClient(@Valid Client client, BindingResult result, Model model, @RequestParam("file") MultipartFile photo, SessionStatus status, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("title", "Client Form");
             return "form";
+        }
+        if (!photo.isEmpty()) {
+            Path resourceDirectory = Paths.get("src//main//resources//static/images");
+            String rootPath = resourceDirectory.toFile().getAbsolutePath();
+            try {
+                byte[] bytes = photo.getBytes();
+                Path completePath = Paths.get(rootPath + "//" + photo.getOriginalFilename());
+                Files.write(completePath, bytes);
+                redirectAttributes.addFlashAttribute("info", photo.getOriginalFilename() + "Uploaded successfully");
+                client.setPhoto(photo.getOriginalFilename());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         iClientService.save(client);
         status.setComplete();

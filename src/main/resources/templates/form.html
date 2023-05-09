@@ -10,7 +10,7 @@
 <header th:fragment="header"></header>
 
 <h1 th:text="${title}"></h1>
-<form th:action="@{/form}" th:object="${client}" method="post">
+<form th:action="@{/form}" th:object="${client}" method="post" enctype="multipart/form-data">
     <div class="container">
 
         <div class="mb-3">
@@ -37,6 +37,11 @@
                    th:errorclass="'form-control alert-danger'">
             <small class="form-text text-danger" th:if="${#fields.hasErrors('createAt')}"
                    th:errors="*{createAt}"></small>
+        </div>
+        <div class="mb-3">
+            <label for="file" class="form-label">Photo</label>
+            <input type="file" class="form-control" id="photo" aria-describedby="emailHelp"
+                   th:errorclass="'form-control alert-danger'">
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>

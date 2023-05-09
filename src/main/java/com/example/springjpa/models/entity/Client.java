@@ -38,4 +38,5 @@ public class Client implements Serializable {
     @Temporal(TemporalType.DATE)
     @NotNull
     private Date createAt;
+    private String photo;
 }
